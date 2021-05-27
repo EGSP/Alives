@@ -2,20 +2,12 @@
 using Egsp.Core;
 using Egsp.CSharp;
 using UnityEngine;
-using Component = Egsp.CSharp.Component;
 
 namespace Alive
 {
     public abstract partial class Entity : DecoratorBase
     {
-        protected Entity()
-        {
-            AddComponent(new PositionComponent());
-        }
-        
-        // Groups of components.
-        private ComponentGroup<IAwakeComponent> _awakeGroup;
-        private ComponentGroup<IUpdateComponent> _updateGroup;
+        public readonly UInt32Id Id;
         
         private PositionComponent _positionComponent;
         
@@ -45,6 +37,13 @@ namespace Alive
         /// </summary>
         public Option<VisualShellComponent> HasVisual =>
             VisualShellComponent == null ? Option<VisualShellComponent>.None : VisualShellComponent;
+        
+        protected Entity(UInt32Id id)
+        {
+            Id = id;
+            AddComponent(new PositionComponent());
+            EntityManager.Instance.ProcessEntity(this);
+        }
 
         protected override void OnAddComponentInternal(IComponent component)
         {
@@ -67,27 +66,42 @@ namespace Alive
             }
         }
 
-        protected override void OnGroupComponent(IComponent component)
-        {
-            var groupAwake = 
-                Group<IAwakeComponent>(component);
-
-            var groupUpdate =
-                Group<IUpdateComponent>(component);
-            
-            if (groupAwake.IsSome)
-                _awakeGroup = groupAwake.Value;
-
-            if (groupUpdate.IsSome)
-                _updateGroup = groupUpdate.Value;
-        }
-
         protected void ThrowTwoInstanceComponent(Type type) => throw new InvalidOperationException(
             $"У объекта не может быть два {type.Name} компонента.");
+
+        public EntityEqualsType EqualsType(Entity entity)
+        {
+            if (Equals(entity))
+            {
+                return EntityEqualsType.EqualInstance;
+            }
+            else
+            {
+                if (entity == null)
+                    return EntityEqualsType.NotEqual;
+                
+                if (entity.Id == this.Id)
+                    return EntityEqualsType.EqualId;   
+            }
+
+            return EntityEqualsType.NotEqual;
+        }
+
     }
 
-    public sealed class PositionComponent : Component
+    public enum EntityEqualsType
     {
-        public Vector3 Position;
+        /// <summary>
+        /// Одна и та же сущность.
+        /// </summary>
+        EqualInstance,
+        /// <summary>
+        /// Разные сущности с одинаковым идентификатором.
+        /// </summary>
+        EqualId,
+        /// <summary>
+        /// Разные сущности.
+        /// </summary>
+        NotEqual
     }
 }

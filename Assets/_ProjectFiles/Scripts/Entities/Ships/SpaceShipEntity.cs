@@ -4,7 +4,7 @@
     {
         public float Scale { get; private set; }
 
-        public SpaceShipEntity(float scale) : base()
+        public SpaceShipEntity(UInt32Id id, float scale) : base(id)
         {
             Scale = scale;
         }

@@ -6,7 +6,7 @@ namespace Alive
     /// <summary>
     /// Хранит ссылку на визуальную оболочку объекта.
     /// </summary>
-    public class VisualShellComponent : EntityComponent, IAwakeComponent
+    public class VisualShellComponent : EntityComponent, IAwakeComponent, IUpdateComponent
     {
         /// <summary>
         /// Текущая оболочка объекта.
@@ -25,6 +25,8 @@ namespace Alive
 
         protected override void OnEntitySetInternal()
         {
+            Debug.Log("SetOwner");
+            VisualShell.Owner = new WeakReference<Entity>(Entity);
             VisualShell.transform.position = Entity.Position;
         }
 
@@ -37,6 +39,12 @@ namespace Alive
         public void Awake()
         {
             Debug.Log("AWAKENED COMPONENT!");
+        }
+
+        public void Update(in UpdateData u)
+        {
+            Debug.Log("UPDATE COMPONENT!");
+            VisualShell.transform.rotation *= Quaternion.Euler(0, 50 * u.deltaTime, 0);
         }
     }
 }
