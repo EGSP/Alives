@@ -1,4 +1,5 @@
 ﻿using System;
+using Alive.Entities;
 using UnityEngine;
 
 namespace Alive
@@ -14,7 +15,7 @@ namespace Alive
 
             var id = _entityManager.RequestEntityId();
             
-            var spaceShip = new SpaceShipEntity(id,1);
+            var spaceShip = new SpaceShip(id,3);
             var shell = Instantiate(shipVisualShell);
 
             spaceShip.Position = new Vector3(10, 10, 10);

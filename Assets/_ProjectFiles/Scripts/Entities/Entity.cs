@@ -53,6 +53,7 @@ namespace Alive
                     ThrowTwoInstanceComponent(typeof(VisualShellComponent));
 
                 VisualShellComponent = visualShellComponent;
+                OnAddVisualShell(VisualShellComponent);
                 return;
             }
 
@@ -65,6 +66,8 @@ namespace Alive
                 return;
             }
         }
+        
+        protected virtual void OnAddVisualShell(NotNull<VisualShellComponent> visualShell){}
 
         protected void ThrowTwoInstanceComponent(Type type) => throw new InvalidOperationException(
             $"У объекта не может быть два {type.Name} компонента.");
@@ -86,8 +89,8 @@ namespace Alive
 
             return EntityEqualsType.NotEqual;
         }
-
     }
+
 
     public enum EntityEqualsType
     {

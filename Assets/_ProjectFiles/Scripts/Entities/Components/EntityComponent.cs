@@ -6,22 +6,18 @@ namespace Alive
 {
     public class EntityComponent : Component
     {
-        /// <summary>
-        /// Родительская сущность.
-        /// </summary>
-        public Entity Entity { get; private set; }
+        public Entity Parent { get; private set; }
 
         protected override void OnDecoratorSetInternal()
         {
             if (Decorator is Entity entity)
             {
-                Entity = entity;
+                Parent = entity;
                 OnEntitySetInternal();
             }
             else
             {
-                throw new InvalidOperationException(
-                    "Компонент сущности может быть добавлен только на сущность.");
+                ThrowInvalidDecorator();
             }
         }
 
@@ -31,5 +27,29 @@ namespace Alive
         protected virtual void OnEntitySetInternal()
         {
         }
+        
+        protected void ThrowInvalidDecorator() => throw new InvalidOperationException(
+            "Компонент сущности может быть добавлен только на сущность.");
+    }
+
+    public class EntityComponent<TEntity> : EntityComponent
+    {
+        public new TEntity Parent { get; private set; }
+
+        protected override void OnDecoratorSetInternal()
+        {
+            if (Decorator is TEntity entity)
+            {
+                Parent = entity;
+                OnEntitySetInternal();
+            }
+            else
+            {
+                ThrowInvalidTypeDecorator();
+            }
+        }
+        
+        protected void ThrowInvalidTypeDecorator() => throw new InvalidOperationException(
+                $"Компонент сущности может быть добавлен только на сущность типа {typeof(TEntity)}.");
     }
 }

@@ -6,45 +6,34 @@ namespace Alive
     /// <summary>
     /// Хранит ссылку на визуальную оболочку объекта.
     /// </summary>
-    public class VisualShellComponent : EntityComponent, IAwakeComponent, IUpdateComponent
+    public class VisualShellComponent : EntityComponent
     {
         /// <summary>
         /// Текущая оболочка объекта.
         /// </summary>
-        public readonly EntityVisualShell VisualShell;
+        public readonly EntityVisualShell Shell;
 
         /// <summary>
         /// Вызывается при удалении визуальной оболочки.
         /// </summary>
         public event Action<VisualShellComponent> OnVisualShellDestroyed = delegate { };
 
-        public VisualShellComponent(EntityVisualShell visualShell)
+        public VisualShellComponent(EntityVisualShell shell)
         {
-            VisualShell = visualShell;
+            Shell = shell;
         }
 
         protected override void OnEntitySetInternal()
         {
             Debug.Log("SetOwner");
-            VisualShell.Owner = new WeakReference<Entity>(Entity);
-            VisualShell.transform.position = Entity.Position;
+            Shell.Owner = new WeakReference<Entity>(Parent);
+            Shell.transform.position = Parent.Position;
         }
 
         public void OnShellDestroy()
         {
             OnVisualShellDestroyed(this);
             Destroy();
-        }
-
-        public void Awake()
-        {
-            Debug.Log("AWAKENED COMPONENT!");
-        }
-
-        public void Update(in UpdateData u)
-        {
-            Debug.Log("UPDATE COMPONENT!");
-            VisualShell.transform.rotation *= Quaternion.Euler(0, 50 * u.deltaTime, 0);
         }
     }
 }
