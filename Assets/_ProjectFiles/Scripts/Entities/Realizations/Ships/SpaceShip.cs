@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Alive.Entities
 {
-    public class SpaceShip : Entity
+    public class SpaceShip : BehaviourEntity<SpaceShip>
     {
         public float Scale { get; private set; }
 

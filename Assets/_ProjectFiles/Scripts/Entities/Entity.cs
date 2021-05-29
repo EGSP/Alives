@@ -13,6 +13,11 @@ namespace Alive
         
         private VisualShellComponent _visualShellComponent;
 
+        /// <summary>
+        /// Текущая форма обновления сущности. 
+        /// </summary>
+        public EntityForm Form { get; set; }
+
         private VisualShellComponent VisualShellComponent
         {
             get => _visualShellComponent;
@@ -41,6 +46,8 @@ namespace Alive
         protected Entity(UInt32Id id)
         {
             Id = id;
+            Form = EntityForm.Real;
+            
             AddComponent(new PositionComponent());
             EntityManager.Instance.ProcessEntity(this);
         }
