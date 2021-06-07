@@ -3,18 +3,27 @@
     /// <summary>
     /// Состояние поведения. Другими словами вся логика.
     /// </summary>
-    public abstract class BehaviourState<TEntity> where TEntity : BehaviourEntity<TEntity>
+    public abstract class State<TEntity> where TEntity : BehaviourEntity<TEntity>
     {
         /// <summary>
         /// Текущее поведение данного состояния.
         /// </summary>
         protected readonly Behaviour<TEntity> Behaviour;
 
-        protected BehaviourState(Behaviour<TEntity> behaviour)
+        /// <summary>
+        /// Носитель поведения.
+        /// </summary>
+        protected readonly TEntity Owner;
+
+        protected State(Behaviour<TEntity> behaviour)
         {
             Behaviour = behaviour;
+            Owner = Behaviour.Owner;
         }
 
+        /// <summary>
+        /// Вызывается при пробуждении сущности, либо при первом пробуждении состояния, если сущность уже пробуждена.
+        /// </summary>
         public virtual void Awake()
         {
         }

@@ -1,16 +1,16 @@
 ﻿using Egsp.Core;
 
-namespace Alive.Behaviour
+namespace Alive.Behaviours
 {
     public abstract partial class Behaviour<TEntity> where TEntity : BehaviourEntity<TEntity>
     {
         /// <summary>
         /// Обычное игровое поведение сущности. Без локов анимаций и т.п.
-        /// Каждый кадр вызывает Update. И при появлении Awake.
+        /// Каждый кадр вызывает Update. И при пробуждении Awake.
         /// </summary>
-        public class CommonBehaviour<TEntity> : Behaviour<TEntity> where TEntity : BehaviourEntity<TEntity>
+        public class CommonBehaviour : Behaviour<TEntity>
         {
-            public CommonBehaviour(NotNull<BehaviourEntity<TEntity>> owner) : base(owner)
+            public CommonBehaviour(NotNull<TEntity> owner) : base(owner)
             {
             }
             
@@ -24,7 +24,8 @@ namespace Alive.Behaviour
                 UpdateState(in u);
             }
 
-            public override void SetState(BehaviourState<TEntity> newState)
+            // Отличие данного метода от родительского в том, что идет вызов Awake.
+            public override void SetState(State<TEntity> newState)
             {
                 if (State.IsNone)
                 {
@@ -41,9 +42,12 @@ namespace Alive.Behaviour
             }
         }
         
-        public class AnimationBehaviour<TEntity> : Behaviour<TEntity> where TEntity : BehaviourEntity<TEntity>
+        /// <summary>
+        /// Поведение при анимации. Чаще всего при анимации ничего не должно просчитываться.
+        /// </summary>
+        public class AnimationBehaviour : Behaviour<TEntity>
         {
-            public AnimationBehaviour(NotNull<BehaviourEntity<TEntity>> owner) : base(owner)
+            public AnimationBehaviour(NotNull<TEntity> owner) : base(owner)
             {
             }
         }

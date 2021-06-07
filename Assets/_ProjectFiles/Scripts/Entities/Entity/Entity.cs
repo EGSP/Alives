@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Alive
 {
+    /// <summary>
+    /// Базовый класс для игровых сущностей.
+    /// </summary>
     public abstract partial class Entity : DecoratorBase
     {
         /// <summary>
@@ -15,102 +18,68 @@ namespace Alive
         /// <summary>
         /// Текущая форма обновления сущности. 
         /// </summary>
-        public EntityForm Form { get; set; }
+        public EntityForm Form { get; set; } = EntityForm.Real;
 
-        private VisualShellComponent VisualShellComponent
+        protected Entity()
         {
-            get => _visualShellComponent;
-            set
-            {
-                _visualShellComponent = value;
-                _visualShellComponent.OnVisualShellDestroyed += (shell) => _visualShellComponent = null;
-            }
+            Id = RequestId();
+
+            AddBaseComponents();
+            ApplyManager();
         }
 
         /// <summary>
-        /// Текущая позиция сущности в мире.
+        /// Запрашиваем идентификатор у менеджера.
         /// </summary>
-        public Vector3 Position
+        /// <returns></returns>
+        private UInt32Id RequestId()
         {
-            get => _positionComponent.Position;
-            set => _positionComponent.Position = value;
+            return EntityManager.Instance.RequestEntityId();
         }
-        
+
         /// <summary>
-        /// Привязана ли визуальная оболочка к сущности.
+        /// Сообщаем менеджеру о своем существовании.
         /// </summary>
-        public Option<VisualShellComponent> HasVisual =>
-            VisualShellComponent == null ? Option<VisualShellComponent>.None : VisualShellComponent;
-        
-        protected Entity(UInt32Id id)
+        private void ApplyManager()
         {
-            Id = id;
-            Form = EntityForm.Real;
-            
-            AddComponent(new PositionComponent());
-            EntityManager.Instance.ProcessEntity(this);
+            EntityManager.Instance.ProcessEntity(this); 
         }
 
-        protected override void OnAddComponentInternal(IComponent component)
-        {
-            if (component is VisualShellComponent visualShellComponent)
-            {
-                if (_visualShellComponent != null)
-                    ThrowTwoInstanceComponent(typeof(VisualShellComponent));
-
-                VisualShellComponent = visualShellComponent;
-                OnAddVisualShell(VisualShellComponent);
-                return;
-            }
-
-            if (component is PositionComponent positionComponent)
-            {
-                if (_positionComponent != null)
-                    ThrowTwoInstanceComponent(typeof(PositionComponent));
-
-                _positionComponent = positionComponent;
-                return;
-            }
-        }
-        
-        protected virtual void OnAddVisualShell(NotNull<VisualShellComponent> visualShell){}
-
-        protected void ThrowTwoInstanceComponent(Type type) => throw new InvalidOperationException(
-            $"У объекта не может быть два {type.Name} компонента.");
-
-        public EntityEqualsType EqualsType(Entity entity)
+        /// <summary>
+        /// Возвращает тип равенства двух сущностей: текущей и переданной.
+        /// </summary>
+        public EntityEquality EqualityType(Entity entity)
         {
             if (Equals(entity))
             {
-                return EntityEqualsType.EqualInstance;
+                return EntityEquality.Instance;
             }
             else
             {
                 if (entity == null)
-                    return EntityEqualsType.NotEqual;
+                    return EntityEquality.No;
                 
                 if (entity.Id == this.Id)
-                    return EntityEqualsType.EqualId;   
+                    return EntityEquality.Id;   
             }
 
-            return EntityEqualsType.NotEqual;
+            return EntityEquality.No;
         }
     }
-
-
-    public enum EntityEqualsType
+    
+    public enum EntityEquality
     {
         /// <summary>
         /// Одна и та же сущность.
         /// </summary>
-        EqualInstance,
+        Instance,
         /// <summary>
         /// Разные сущности с одинаковым идентификатором.
         /// </summary>
-        EqualId,
+        Id,
         /// <summary>
         /// Разные сущности.
         /// </summary>
-        NotEqual
+        No
     }
 }

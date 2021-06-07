@@ -4,17 +4,30 @@ using Egsp.Core;
 
 namespace Alive
 {
+    /// <summary>
+    /// Единый менеджер для всех сущностей.
+    /// </summary>
     [LazyInstance(false)]
     public partial class EntityManager : SingletonRaw<EntityManager>
     {
+        /// <summary>
+        /// Генератор идентификаторов для обрабатываемых сущностей. Должен быть одним на всю сессию.
+        /// </summary>
         private UInt32IdGenerator _idGenerator = new UInt32IdGenerator();
 
-        // Все сущности.
+        /// <summary>
+        /// Все обрабатываемые сущности. 
+        /// </summary>
         private Dictionary<UInt32Id, Entity> _entities = new Dictionary<UInt32Id, Entity>();
         
-        // Сущности, которые должны быть уничтожены.
+        /// <summary>
+        /// Сущности, которые подлежат уничтожению.
+        /// </summary>
         private Queue<Entity> _entitiesToDestroy = new Queue<Entity>();
 
+        /// <summary>
+        /// Возвращает свободный идентификатор.
+        /// </summary>
         public UInt32Id RequestEntityId()
         {
             return _idGenerator.GetNextId();
@@ -59,11 +72,9 @@ namespace Alive
             _entitiesToDestroy.Enqueue(entity.Value);
         }
 
-        private void DestroyEntityInternal(NotNull<Entity> entity)
-        {
-            entity.Value.Destroy();
-        }
-
+        /// <summary>
+        /// Уничтожает все сущности в очереди на уничтожение.
+        /// </summary>
         private void DestroyAllEntitiesInternal()
         {
             while (_entitiesToDestroy.Count > 0)
@@ -73,6 +84,9 @@ namespace Alive
             }
         }
 
+        /// <summary>
+        /// Проверка на существование сущности в словаре.
+        /// </summary>
         private bool ExistInCollection(Entity entity)
         {
             if (_entities.ContainsKey(entity.Id))
@@ -85,7 +99,7 @@ namespace Alive
         }
 
         /// <summary>
-        /// Вызывает исключение при коллизии.
+        /// Вызывает исключение если сущности одинаковые (по айди или по экземпляру).
         /// </summary>
         /// <exception cref="IdCollisionException"></exception>
         /// <exception cref="EntityCollisionException"></exception>
@@ -95,11 +109,11 @@ namespace Alive
             if (_entities.ContainsKey(newEntity.Id))
             {
                 var oldEntity = _entities[newEntity.Id];
-                switch (newEntity.EqualsType(oldEntity))
+                switch (newEntity.EqualityType(oldEntity))
                 {
-                    case EntityEqualsType.EqualInstance: 
+                    case EntityEquality.Instance: 
                         throw new EntityCollisionException(newEntity);
-                    case EntityEqualsType.EqualId:
+                    case EntityEquality.Id:
                         throw new IdCollisionException(newEntity, oldEntity);
                     default:
                         throw new InvalidOperationException();

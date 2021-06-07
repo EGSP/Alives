@@ -1,6 +1,6 @@
 ﻿using Egsp.Core;
 
-namespace Alive.Behaviour
+namespace Alive.Behaviours
 {
     /// <summary>
     /// Определяет тип поведения. Игровое, анимационное и т.п..
@@ -10,19 +10,22 @@ namespace Alive.Behaviour
         /// <summary>
         /// Текущий носитель поведения.
         /// </summary>
-        public readonly BehaviourEntity<TEntity> Owner;
+        public readonly TEntity Owner;
         
-        protected bool AlreadyAwake;
+        /// <summary>
+        /// Пробудилось ли данное поведение.
+        /// </summary>
+        public bool AlreadyAwake { get; protected set; }
+        
+        /// <summary>
+        /// Текущее состояние поведения.
+        /// </summary>
+        protected Option<State<TEntity>> State { get; private set; }
 
-        public Behaviour(NotNull<BehaviourEntity<TEntity>> owner)
+        public Behaviour(NotNull<TEntity> owner)
         {
             Owner = owner.Value;
         }
-        
-        /// <summary>
-        /// Текущая логика поведения.
-        /// </summary>
-        protected Option<BehaviourState<TEntity>> State { get; private set; }
 
         public void Awake()
         {
@@ -59,6 +62,9 @@ namespace Alive.Behaviour
         protected virtual void AwakeVirtualInternal() {}
         protected virtual void UpdateVirtualInternal(in UpdateData u) {}
 
+        /// <summary>
+        /// Пробуждает состояние в нужной форме.
+        /// </summary>
         protected void AwakeState()
         {
             if (State.IsSome)
@@ -74,6 +80,9 @@ namespace Alive.Behaviour
             }
         }
 
+        /// <summary>
+        /// Обновляет состояние в нужной форме.
+        /// </summary>
         protected void UpdateState(in UpdateData u)
         {
             if (State.IsSome)
@@ -89,7 +98,10 @@ namespace Alive.Behaviour
             };
         }
         
-        public virtual void SetState(BehaviourState<TEntity> newState)
+        /// <summary>
+        /// Заменяет текущее состояние поведения.
+        /// </summary>
+        public virtual void SetState(State<TEntity> newState)
         {
             State = newState;
         } 

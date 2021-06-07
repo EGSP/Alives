@@ -1,6 +1,4 @@
-﻿using Alive.Behaviour;
-
-namespace Alive
+﻿namespace Alive.Behaviours
 {
     /// <summary>
     /// Автоматически добавляет компонент поведения.
@@ -9,11 +7,11 @@ namespace Alive
         where TEntity : BehaviourEntity<TEntity>
     {
         // Generic нужен, чтобы указать тип будущего дочернего класса при создании компонента.
-        // Он указывает на самого себе, но конкретного типа TEntity.
+        // Он указывает на самого себя, но конкретного типа TEntity.
         
         protected BehaviourComponent<TEntity> BehaviourComponent { get; private set; }
         
-        protected BehaviourEntity(UInt32Id id) : base(id)
+        protected BehaviourEntity() : base()
         {
             AddComponent(new BehaviourComponent<TEntity>());
             BehaviourComponent = GetComponent<BehaviourComponent<TEntity>>().Value;

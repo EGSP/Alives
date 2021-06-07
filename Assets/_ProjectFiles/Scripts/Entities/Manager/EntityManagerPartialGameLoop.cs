@@ -14,23 +14,26 @@ namespace Alive
         public void Awake()
         {
             if (_awaked)
-                throw new InvalidOperationException("Second EntityManager Awake call.");
+                throw new InvalidOperationException("EntityManager пробужден дважды!");
             
             _awaked = true;
             
-            // Awake all existing entities
+            // Пробуждение всех добавленных сущностей.
             foreach (var pair in _entities)
             {
                 pair.Value.ExternalAwake();
             }
         }
-
+        
         private void EntityAwakeInternal(NotNull<Entity> entity)
         {
             if(_awaked)
                 entity.Value.ExternalAwake();
         }
 
+        /// <summary>
+        /// Обновление всех сущностей менеджера.
+        /// </summary>
         public void Update()
         {
             var deltaTime = Time.deltaTime;

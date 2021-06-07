@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Alive.Behaviour
+namespace Alive.Behaviours
 {
-    // Behaviour - это момент выполнения каких-либо действий. Обычное-игровое, в состоянии анимации и т.п..
-    // Behaviour - это сама логика, выполняемая при обновлении поведения.
-    
     /// <summary>
     /// <para>Компонент-носитель поведения.</para>
     /// <para>Содержит в себе базовый список типов поведения и логику их обновления.</para>
     /// </summary>
-    public class BehaviourComponent<TEntity> : EntityComponent<TEntity>
+    public class BehaviourComponent<TEntity> : EntityComponent<TEntity> 
         where TEntity : BehaviourEntity<TEntity>
     {
         /// <summary>
@@ -23,17 +20,18 @@ namespace Alive.Behaviour
         /// </summary>
         private Behaviour<TEntity> CurrentBehaviour { get; set; }
 
+        // При установке компонента на сущность, создаем стандартные поведения.
         protected override void OnEntitySetInternal()
         {
-            Behaviours.Add(typeof(Behaviour<TEntity>.CommonBehaviour<TEntity>),
-                new Behaviour<TEntity>.CommonBehaviour<TEntity>(Parent));
-            Behaviours.Add(typeof(Behaviour<TEntity>.AnimationBehaviour<TEntity>),
-                new Behaviour<TEntity>.AnimationBehaviour<TEntity>(Parent));
+            Behaviours.Add(typeof(Behaviour<TEntity>.CommonBehaviour),
+                new Behaviour<TEntity>.CommonBehaviour(Parent));
+            Behaviours.Add(typeof(Behaviour<TEntity>.AnimationBehaviour),
+                new Behaviour<TEntity>.AnimationBehaviour(Parent));
         }
 
         public void Awake()
         {
-            SetDefaultBehaviour();
+            SetupDefaultBehaviour();
             CurrentBehaviour.Awake();
         }
 
@@ -42,6 +40,9 @@ namespace Alive.Behaviour
             CurrentBehaviour.Update(in u);
         }
 
+        /// <summary>
+        /// Меняет поведение на переданный тип поведения.
+        /// </summary>
         protected void ChangeBehaviourTo<TBehaviourType>()
             where TBehaviourType : Behaviour<TEntity>
         {
@@ -54,17 +55,23 @@ namespace Alive.Behaviour
             }
         }
 
+        /// <summary>
+        /// Меняет поведение на переданный тип поведения.
+        /// </summary>
         public void ChangeBehaviourTo(BehaviourType type)
         {
             switch (type)
             {
-                case BehaviourType.Common: ChangeBehaviourTo<Behaviour<TEntity>.CommonBehaviour<TEntity>>();
+                case BehaviourType.Common: ChangeBehaviourTo<Behaviour<TEntity>.CommonBehaviour>();
                     return;
-                case BehaviourType.Animation: ChangeBehaviourTo<Behaviour<TEntity>.AnimationBehaviour<TEntity>>();
+                case BehaviourType.Animation: ChangeBehaviourTo<Behaviour<TEntity>.AnimationBehaviour>();
                     return;
             }
         }
-
-        protected void SetDefaultBehaviour() => ChangeBehaviourTo(BehaviourType.Common);
+        
+        /// <summary>
+        /// Устанавливает текущее поведение на одно из стандартных.
+        /// </summary>
+        protected void SetupDefaultBehaviour() => ChangeBehaviourTo(BehaviourType.Common);
     }
 }

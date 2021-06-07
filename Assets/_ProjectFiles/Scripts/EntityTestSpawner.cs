@@ -1,25 +1,23 @@
-﻿using System;
-using Alive.Entities;
+﻿using Alive.Entities;
+using Alive.Mono;
 using UnityEngine;
 
 namespace Alive
 {
     public class EntityTestSpawner : MonoBehaviour
     {
-        [SerializeField] private EntityVisualShell shipVisualShell;
+        [SerializeField] private VisualShellMono shipVisualShellMono;
         private EntityManager _entityManager;
 
         public void Awake()
         {
             _entityManager = EntityManager.CreateInstance();
-
-            var id = _entityManager.RequestEntityId();
             
-            var spaceShip = new SpaceShip(id,3);
-            var shell = Instantiate(shipVisualShell);
+            var shell = Instantiate(shipVisualShellMono);
+            var spaceShip = new SpaceShip(3);
 
             spaceShip.Position = new Vector3(10, 10, 10);
-            spaceShip.AddComponent(new VisualShellComponent(shell));
+            spaceShip.VisualShell.Mono = shell;
             
             _entityManager.Awake();
         }
