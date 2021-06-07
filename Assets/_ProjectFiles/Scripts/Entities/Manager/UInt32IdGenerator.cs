@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Alive
 {
@@ -8,10 +7,20 @@ namespace Alive
     /// </summary>
     public class UInt32IdGenerator
     {
+        /// <summary>
+        /// Все свободные идентификаторы.
+        /// </summary>
         private Queue<UInt32Id> _freeIds = new Queue<UInt32Id>();
         
+        /// <summary>
+        /// Последний естественный использованный идентификатор. Получаемый, при увеличении числа.
+        /// </summary>
         private UInt32Id _lastId = UInt32Id.Create(0);
 
+        /// <summary>
+        /// Возвращает доступный идентификатор.
+        /// Может быть взят из пула идентификаторов или следующим числом.
+        /// </summary>
         public UInt32Id GetNextId()
         {
             // Если нет свободных идентификаторов, то создаем новый.
@@ -28,47 +37,55 @@ namespace Alive
         }
 
         /// <summary>
-        /// Складывает переданный идентификатор в пул идентификаторов.
+        /// <para>Складывает переданный идентификатор в пул идентификаторов.</para>
+        /// <para>Полезно использовать для недопущения переполнения идентификаторов.</para>
         /// </summary>
         public void PoolId(UInt32Id id) => _freeIds.Enqueue(id);
 
+        /// <summary>
+        /// Очищает пул идентификаторов и сбрасывает счетчик идентификаторов.
+        /// </summary>
         public void Reset()
         {
             _freeIds.Clear();
             _lastId = UInt32Id.Create(1);
         }
-    }
 
-    /// <summary>
-    /// Структура идентификатора с диапазоном от 0 до 4,294,967,295.
-    /// </summary>
-    public readonly struct UInt32Id
-    {
-        public readonly uint Value;
-
-        private UInt32Id(uint value)
+        /// <summary>
+        /// Возвращает объект-мементо данного генератора для последующего сохранения.
+        /// </summary>
+        public UInt32IdGeneratorMemento Mem()
         {
-            Value = value;
+            return new UInt32IdGeneratorMemento(this);
         }
 
-        public UInt32Id NextId() => Value + 1;
+        /// <summary>
+        /// Восстанавливает сохраненное состояние.
+        /// </summary>
+        public void Restore(UInt32IdGeneratorMemento memento)
+        {
+            Reset();
+
+            _freeIds = new Queue<UInt32Id>(memento.FreeIds);
+            _lastId = memento.LastId;
+        }
         
-        public static UInt32Id Create(uint id) => new UInt32Id(id);
-
-        public static implicit operator UInt32Id(uint value) => new UInt32Id(value);
-
-        public static bool operator ==(UInt32Id a, UInt32Id b)
+        public readonly struct UInt32IdGeneratorMemento
         {
-            return a.Value == b.Value;
-        }
+            public readonly UInt32Id[] FreeIds;
+            public readonly UInt32Id LastId;
 
-        public static bool operator !=(UInt32Id a, UInt32Id b)
-        {
-            return !(a.Value == b.Value);
-        }
+            public UInt32IdGeneratorMemento(UInt32Id[] freeIds, UInt32Id lastId)
+            {
+                FreeIds = freeIds;
+                LastId = lastId;
+            }
 
-        public override bool Equals(object obj) => Value.Equals(obj);
-        public override int GetHashCode() => Value.GetHashCode();
-        public override string ToString() => Value.ToString();
+            public UInt32IdGeneratorMemento(UInt32IdGenerator generator)
+            {
+                FreeIds = generator._freeIds.ToArray();
+                LastId = generator._lastId;
+            }
+        }
     }
 }
