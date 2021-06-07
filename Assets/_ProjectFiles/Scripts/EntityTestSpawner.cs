@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Alive
 {
-    public class EntityVisualManager : MonoBehaviour
+    public class EntityTestSpawner : MonoBehaviour
     {
         [SerializeField] private EntityVisualShell shipVisualShell;
         private EntityManager _entityManager;

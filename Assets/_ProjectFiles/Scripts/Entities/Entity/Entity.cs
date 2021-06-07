@@ -7,11 +7,10 @@ namespace Alive
 {
     public abstract partial class Entity : DecoratorBase
     {
+        /// <summary>
+        /// Идентификатор сущности. 
+        /// </summary>
         public readonly UInt32Id Id;
-        
-        private PositionComponent _positionComponent;
-        
-        private VisualShellComponent _visualShellComponent;
 
         /// <summary>
         /// Текущая форма обновления сущности. 
